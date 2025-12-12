@@ -2,7 +2,7 @@
 
 [中文文档](README_CN.md)
 
-A simple Node.js proxy service that forwards images and messages to a Telegram Bot, attaching the client's IP address and geolocation information.
+A simple Cloudflare Worker service that forwards images and messages to a Telegram Bot, attaching the client's IP address and geolocation information.
 
 ## Features
 
@@ -12,21 +12,36 @@ A simple Node.js proxy service that forwards images and messages to a Telegram B
 - Retrieves client OS version (via `x-os-version` Header).
 - Forwards the image/message with attached metadata to a specified Telegram Bot.
 
-## Deploy on Railway
+## Deploy on Cloudflare Workers
 
-Click the button below to deploy on Railway:
+1. **Install Wrangler** (Cloudflare CLI):
+   ```bash
+   npm install -g wrangler
+   ```
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/horizontalsystems/telegram-bot-proxy&envs=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID)
+2. **Login to Cloudflare**:
+   ```bash
+   wrangler login
+   ```
 
-*(Note: You need to push this repository to GitHub to use the button above, or select "New Project" -> "Deploy from GitHub repo" directly in Railway)*
+3. **Clone and Install Dependencies**:
+   ```bash
+   git clone https://github.com/horizontalsystems/telegram-bot-proxy.git
+   cd telegram-bot-proxy
+   npm install
+   ```
 
-## Environment Variables
+4. **Configure Secrets**:
+   Set your Telegram Bot secrets in Cloudflare:
+   ```bash
+   npx wrangler secret put TELEGRAM_BOT_TOKEN
+   npx wrangler secret put TELEGRAM_CHAT_ID
+   ```
 
-The following environment variables are required for deployment:
-
-- `TELEGRAM_BOT_TOKEN`: Your Telegram Bot Token.
-- `TELEGRAM_CHAT_ID`: The Chat ID to receive messages.
-- `PORT`: (Optional) Service port, defaults to 3000.
+5. **Deploy**:
+   ```bash
+   npm run deploy
+   ```
 
 ## Run Locally
 
@@ -35,13 +50,12 @@ The following environment variables are required for deployment:
    npm install
    ```
 
-2. Configure environment variables:
-   Copy `.env.example` to `.env` and fill in your configuration.
-
-3. Start the service:
+2. Start the local development server:
    ```bash
-   node index.js
+   npx wrangler dev
    ```
+   
+   To test with secrets locally, create a `.dev.vars` file or pass them as arguments if needed (or rely on remote secrets with `--remote` if applicable, though local dev usually suggests `.dev.vars`).
 
 ## API Documentation
 
@@ -70,7 +84,7 @@ Forwards a text message to Telegram, automatically attaching client IP, location
 #### Example (cURL)
 
 ```bash
-curl -X POST https://your-proxy-url.app/sendMessage \
+curl -X POST https://your-worker.workers.dev/sendMessage \
      -H "Content-Type: application/json" \
      -H "x-os-version: Android 14" \
      -d '{"text": "User logged in"}'
@@ -102,7 +116,7 @@ Forwards a photo to Telegram, supports an optional caption, and automatically at
 #### Example (cURL)
 
 ```bash
-curl -X POST https://your-proxy-url.app/sendPhoto \
+curl -X POST https://your-worker.workers.dev/sendPhoto \
      -H "x-os-version: iOS 17.2" \
      -F "photo=@/path/to/image.jpg" \
      -F "caption=Screenshot detected"

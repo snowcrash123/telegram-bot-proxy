@@ -1,0 +1,12 @@
+name = "telegram-bot-proxy"
+main = "worker.js"
+compatibility_date = "2024-12-05"
+
+# Uses Node.js compatibility mode for better ecosystem support if needed, 
+# though we aim for standard Web APIs.
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Placeholder variables, user needs to set these in Cloudflare Dashboard
+# TELEGRAM_BOT_TOKEN = ""
+# TELEGRAM_CHAT_ID = ""

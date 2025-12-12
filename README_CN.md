@@ -1,6 +1,6 @@
 # Telegram Bot Proxy
 
-这是一个简单的 Node.js 代理服务，用于转发图片到 Telegram Bot，并附加客户端的 IP 和地理位置信息。
+这是一个简单的 Cloudflare Worker 服务，用于转发图片到 Telegram Bot，并附加客户端的 IP 和地理位置信息。
 
 ## 功能
 
@@ -10,21 +10,36 @@
 - 获取客户端操作系统版本（通过 Header `x-os-version`）。
 - 将图片和附加信息转发给指定的 Telegram Bot。
 
-## 部署到 Railway
+## 部署到 Cloudflare Workers
 
-点击下方按钮一键部署到 Railway：
+1. **安装 Wrangler** (Cloudflare CLI):
+   ```bash
+   npm install -g wrangler
+   ```
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/horizontalsystems/telegram-bot-proxy&envs=TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID)
+2. **登录 Cloudflare**:
+   ```bash
+   wrangler login
+   ```
 
-*(注意：你需要将此仓库推送到 GitHub 才能使用上述按钮，或者直接在 Railway 中选择 "New Project" -> "Deploy from GitHub repo")*
+3. **克隆项目并安装依赖**:
+   ```bash
+   git clone https://github.com/horizontalsystems/telegram-bot-proxy.git
+   cd telegram-bot-proxy
+   npm install
+   ```
 
-## 环境变量
+4. **配置密钥 (Secrets)**:
+   在 Cloudflare 中设置你的 Telegram Bot 密钥：
+   ```bash
+   npx wrangler secret put TELEGRAM_BOT_TOKEN
+   npx wrangler secret put TELEGRAM_CHAT_ID
+   ```
 
-部署时需要配置以下环境变量：
-
-- `TELEGRAM_BOT_TOKEN`: 你的 Telegram Bot Token。
-- `TELEGRAM_CHAT_ID`: 接收消息的 Chat ID。
-- `PORT`: (可选) 服务端口，默认为 3000。
+5. **部署**:
+   ```bash
+   npm run deploy
+   ```
 
 ## 本地运行
 
@@ -33,12 +48,9 @@
    npm install
    ```
 
-2. 配置环境变量：
-   复制 `.env.example` 为 `.env` 并填入你的配置。
-
-3. 启动服务：
+2. 启动本地开发服务器：
    ```bash
-   node index.js
+   npx wrangler dev
    ```
 
 ## API 文档
@@ -68,7 +80,7 @@
 #### 示例 (cURL)
 
 ```bash
-curl -X POST https://your-proxy-url.app/sendMessage \
+curl -X POST https://your-worker.workers.dev/sendMessage \
      -H "Content-Type: application/json" \
      -H "x-os-version: Android 14" \
      -d '{"text": "User logged in"}'
@@ -100,7 +112,7 @@ curl -X POST https://your-proxy-url.app/sendMessage \
 #### 示例 (cURL)
 
 ```bash
-curl -X POST https://your-proxy-url.app/sendPhoto \
+curl -X POST https://your-worker.workers.dev/sendPhoto \
      -H "x-os-version: iOS 17.2" \
      -F "photo=@/path/to/image.jpg" \
      -F "caption=Screenshot detected"
